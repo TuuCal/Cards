@@ -1,0 +1,47 @@
+void printSuit(int suit) {
+	if(suit == CLUBS) {
+		printf("Clubs");
+	} else if(suit == DIAMONDS) {
+		printf("Diamonds");
+	} else if(suit == HEARTS) {
+		printf("Hearts");
+	} else if(suit == SPADES) {
+		printf("Spades");
+	}
+}
+
+void printValue(int value) {
+	if(value == 1) {
+		printf("Ace");
+	} else if (value == 11) {
+		printf("Jack");
+	}else if (value == 12) {
+		printf("Queen");
+	}else if (value == 13) {
+		printf("King");
+	}else if(value == 2) {
+		printf("Two");
+	}else if(value == 3){
+		printf("Three");
+	}else if(value == 4){
+		printf("Four");
+	}else if(value == 5){
+		printf("Five");
+	}else if(value == 6){
+		printf("Six");
+	}else if(value == 7){
+		printf("Seven");
+	}else if (value == 8){
+		printf("Eight");
+	}else if(value == 9){
+		printf("Nine");
+	}else if(value == 10){
+		printf("Ten");
+	}
+}
+
+void printCard(card c) {
+	printValue(c.value);
+	printf(" of ");
+	printSuit(c.suit);
+}
