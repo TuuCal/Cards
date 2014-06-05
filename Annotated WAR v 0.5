@@ -1,0 +1,248 @@
+#include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
+
+//WAR .5
+
+
+//Array points suits at suit "values"
+char * suits[] = {"Clubs","Diamonds","Hearts","Spades"};
+//Array points values at value names
+char * values[] = {"Ace","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Jack","Queen","King"};
+
+//Enum makes a definition for the values of cardsuit
+enum cardsuit {
+	Clubs,//ex. 0 is now Clubs
+	Diamonds,
+	Hearts,
+	Spades
+};
+
+// a card has a suit and a value.
+typedef struct {
+	enum cardsuit suit;
+	short int value;
+} Card;
+
+//a deck has 52 card slots and a number of cards in it.
+typedef struct {
+	Card cards[52];
+	int length;
+} Deck;
+
+// A function to check if a deck has cards or not.
+int isEmpty(Deck deck){
+	if (deck.length == 0)
+		return 1;
+	else
+		return 0;
+}
+
+// a function that takes a specified card and adds it to the end of a specified deck and then increments the length of the deck.
+void addCard(Deck *d, Card c){
+	(*d).cards[(*d).length] = c;// puts card in the end of deck
+	(*d).length ++; // increments length
+}
+
+// a function that takes the first index of a deck and returns it as well as moves every member of the array "left" by one and decrements the deck's length
+Card removeCard(Deck *d) {
+	Card c1 = (*d).cards[0];//move index 0 into c1
+
+	for (int a = 0; a < (*d).length; a++) {// loop through cards until length of deck and move "left"
+		(*d).cards[a] = (*d).cards[a + 1];
+	}
+	(*d).length --;//make the length of the deck smaller by one
+	return c1;//gives you the card it removed
+}
+
+// a function that compares two cards and returns "boolean"
+int greaterThan(Card c1, Card c2){
+    if (c1.value > c2.value){//is the first card bigger?
+        return 1;//yes
+    } else if (c1.value == c2.value){//if the values are equal
+    if (c1.suit > c2.suit){//if they are is the suit "bigger"?
+        return 1;//yes
+    }else {
+        return 0;//no
+    }
+    }else {
+    return 0;//no
+    }
+}
+
+// a function to print the formatted suit of a card
+void printSuit(int suit) {
+	printf(suits[suit]); // Now draws from an array
+}
+
+// a function to print the formatted value of a card
+void printValue(int value) {
+	printf(values[value - 1]); // Subtract 1 to start from 1
+}
+
+// a function that combines the two previous functions to print a full card.
+void printCard(Card c) {
+	printValue(c.value);
+	printf(" of ");
+	printSuit(c.suit);
+}
+
+// a function that loops the previous function through a deck to print all of it's cards.
+void printDeck(Deck *d) {
+    for(int i = 0; i < (*d).length; i++ ){
+        printCard((*d).cards[i]);
+        printf("\n");
+    }
+
+}
+
+Deck deck;// deck where the cards are generated and shuffled
+Deck plyrDeck;// player's deck
+Deck dealDeck;//computer's deck
+
+//a function to shuffle a deck
+void shuffle(){
+		int rnd, rnd1;
+		Card temp;
+		srand (time(NULL));// sets the seed of the rand function as clock time to get "more random" numbers
+
+		for(int i = 0; i < 52 *10; i++) {// a loop that generates random numbers in a range between 1 and 52.
+			rnd = rand() % 52;
+			rnd1 = rand() % 52;
+			if (rnd == rnd1){// makes sure you aren't replacing a card with it's self
+				rnd = (rnd + 1) % 52;
+			}
+
+			//this bit takes random indexes of the deck and swaps them with another random index
+			temp = deck.cards[rnd];
+			deck.cards[rnd] = deck.cards[rnd1];
+			deck.cards[rnd1] = temp;
+		}
+}
+
+
+//A function to place in Main to test that all the functions are doing what they should be doing.
+void runTests() {
+
+	Deck testDeck;
+	testDeck.length = 0;
+
+	if(!isEmpty(testDeck)) {// if the deck is not empty with a length of zero the function is broken
+		printf("isEmpty test 1 failed!\n");
+	}
+
+	testDeck.length = 1;
+
+	if(isEmpty(testDeck)) {// if the deck is empty with a length of 1 the function is broken
+		printf("isEmpty test 2 failed!\n");
+	}
+
+    testDeck.length = 0;
+
+    Card testCard;
+    testCard.suit = Hearts;
+    testCard.value = 13;
+
+    addCard(&testDeck, testCard);
+
+	if(isEmpty(testDeck)) {// if the deck is empty after a card is added addCard is broken
+		printf("addCard test 1 failed!\n");
+	}
+
+	Card yourmom = removeCard(&testDeck);
+
+    if(!isEmpty(testDeck)) {// if the deck is not empty after the card is removed removeCard is broken
+		printf("removeCard test 1 failed!\n");
+    }
+
+    if(yourmom.value != testCard.value && yourmom.suit != testCard.suit) {// if the card is not moved to it's new location removeCard is broken
+
+		printf("removeCard test 2 failed!\n");
+    }
+
+    Card bigCard;
+    bigCard.value = 13;
+    bigCard.suit = Spades;
+
+    Card smallCard;
+    smallCard.value = 1;
+    smallCard.suit = Clubs;
+
+    Card lessBig;
+    lessBig.value = 13;
+    lessBig.suit = Clubs;
+
+    if(!greaterThan(bigCard, smallCard)) {//if bigCard is not greater than smallCard greaterThan is broken.
+        printf("greaterThan test 1 failed!");
+    }
+
+    if(greaterThan(smallCard, bigCard)) {//if smallCard is greater than bigCard greaterThan is broken.
+        printf("greaterThan test 2 failed!");
+    }
+
+    if(!greaterThan(bigCard, lessBig)) {//if bigCard.suit is not greater than lessBig.suit, greaterThan is broken.
+        printf("greaterThan test 3 failed!");
+    }
+
+
+}
+
+int main() {
+
+	runTests();//run the test code, will print if broken.
+
+	//initializes the base deck to shuffle
+	for (int i = 0; i < 52; i++) {
+		deck.cards[i].suit = i/13;
+		deck.cards[i].value = (i%13)+1;
+		deck.length++;
+	}
+
+	shuffle();//shuffles base deck
+
+	//initializes player deck by moving the first half from original deck
+	for (int i = 0; i < 26; i++) {
+        Card c1 = removeCard(&deck);
+
+        addCard(&plyrDeck, c1);
+
+	}
+
+	//initializes dealer deck by moving the first half from original deck
+	for (int i = 0; i < 26; i++) {
+        Card c2 = removeCard(&deck);
+
+        addCard(&dealDeck, c2);
+	}
+
+	//Loop that runs until a deck is empty, signaling endgame.
+	while(!isEmpty(plyrDeck) && !isEmpty(dealDeck)) {
+	    if(getchar()){//press a key to start a turn <- this needs to be prettier.
+            Card p1Card = removeCard(&plyrDeck);//Draws player card
+            printf("You drew:\n");
+            printCard(p1Card);
+            printf("\n\n");
+
+            Card p2Card = removeCard(&dealDeck);//Draws dealer card
+            printf("The dealer drew:\n");
+            printCard(p2Card);
+            printf("\n\n");
+
+	    if (greaterThan(p1Card, p2Card)){//compares cards "in play", to see if player wins
+            printf("The cards go to you!\n");
+            addCard(&plyrDeck,p1Card); //add the cards to player deck
+            addCard(&plyrDeck,p2Card);//^^
+	    }else{//if player does not win
+	        printf("The cards go to the dealer!\n");
+	        addCard(&dealDeck,p1Card);//add the cards to dealer deck
+	        addCard(&dealDeck,p2Card);//^^
+	    }
+
+    }
+}
+    if(isEmpty(plyrDeck)){// if player deck is empty
+        printf("You Lose!");
+    }else{
+        printf("You Win!");
+    }
+}
